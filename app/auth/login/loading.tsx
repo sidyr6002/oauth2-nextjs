@@ -2,7 +2,8 @@ import React from 'react'
 
 const LoginLoading = () => {
   return (
-    <div>LoginLoading....</div>
+      <div className='w-[420px] h-[450px] bg-background/15 rounded-md overflow-hidden'>
+      </div> 
   )
 }
 

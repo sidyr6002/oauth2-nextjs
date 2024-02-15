@@ -13,13 +13,12 @@ export default function Home() {
 				<p className={cn("text-xl font-normal", font.className)}>A simple authentication service</p>
 				<div>
 				<LoginButton>
-					<Button variant="default" size="lg" className="rounded-sm w-48">
+					<Button variant="default" size="lg" className="rounded-sm w-48 shadow-sm shadow-blue-600/70">
 						Sign In
 					</Button>
 				</LoginButton>
 				</div>
 			</div>
-
 		</main>
   );
 }

@@ -24,7 +24,7 @@ const CardWrapper = (props: cardWrapperProps) => {
     } = props
 
     return (
-        <Card className='w-10/12 sm:w-[420px] shadow-xl'>
+        <Card className='w-10/12 sm:w-[420px] shadow-md shadow-gray-400/40'>
             <CardHeader>
                 <CardTitle>
                     <Header label={headerlabel} />

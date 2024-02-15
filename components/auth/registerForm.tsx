@@ -1,9 +1,9 @@
 "use client";
-import React, {useTransition, useRef, useState} from "react";
-import { loginSchema } from "@/schemas";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { registerSchema } from '@/schemas';
+import { zodResolver } from '@hookform/resolvers/zod';
+import React, { useRef, useState, useTransition } from 'react'
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,41 +16,45 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import FormError from "../formError";
-import FormSuccess from "../formSuccess";
-import axios from "axios";
-import Link from "next/link";
+import Link from 'next/link';
+import axios from 'axios';
+import FormError from '../formError';
+import FormSuccess from '../formSuccess';
 
-const LoginForm = () => {
-    const [success, setSuccess] = useState<string | undefined>("");
+const registerForm = () => {
     const [error, setError] = useState<string | undefined>("");
+    const [success, setSuccess] = useState<string | undefined>("");
     const [isPending, startTransition] = useTransition();
+    
 
-    const form = useForm<z.infer<typeof loginSchema>>({
-        resolver: zodResolver(loginSchema),
+    const form = useForm<z.infer<typeof registerSchema>>({
+        resolver: zodResolver(registerSchema),
         defaultValues: {
+            name: "",
             email: "",
             password: "",
+            confirmPassword: "",
         },
     });
 
-    const onSubmit = (values: z.infer<typeof loginSchema>) => {
+    const onSubmit = (values: z.infer<typeof registerSchema>) => {
         startTransition(async () => {
             try {
-                const response = await axios.post("/api/login", values, {
+                const response = await axios.post("/api/register", values, {
                     headers: {
                         "Content-Type": "application/json",
                     },
-                });
+                })
                 console.log(response.data);
                 setSuccess(response.data.message);
                 timeOut();
             } catch (error: any) {
+                console.error(error);
                 setError(error.response.data.message);
                 timeOut();
-            }
-        });
-    };
+            }  
+        })
+    }
 
     const timeOut = () => {
         setTimeout(() => {
@@ -62,6 +66,24 @@ const LoginForm = () => {
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel className="sr-only">Name</FormLabel>
+                            <FormControl>
+                                <Input
+                                    placeholder="Enter your name"
+                                    {...field}
+                                    className="w-full py-5 text-base sm:text-lg placeholder:text-base shadow-inner shadow-gray-400/40"
+                                    disabled={isPending}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
                 <FormField
                     control={form.control}
                     name="email"
@@ -96,11 +118,26 @@ const LoginForm = () => {
                                     disabled={isPending}
                                 />
                             </FormControl>
-                            <FormDescription>
-                                <Button variant="link" size="sm" className="p-0 text-sm">
-                                    <Link href="#">Forgot your password?</Link>
-                                </Button>
-                            </FormDescription>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel className="sr-only">Confirm Password</FormLabel>
+                            <FormControl>
+                                <Input
+                                    placeholder="Re-enter your password"
+                                    type="password"
+                                    autoComplete="confirmPassword"
+                                    {...field}
+                                    className="w-full py-5 text-base sm:text-lg placeholder:text-base shadow-inner shadow-gray-400/40"
+                                    disabled={isPending}
+                                />
+                            </FormControl>
                             <FormMessage />
                         </FormItem>
                     )}
@@ -113,11 +150,11 @@ const LoginForm = () => {
                     className="w-full text-base py-5 shadow-md shadow-blue-500/30"
                     disabled={isPending}
                 >
-                    Login
+                    Sign Up
                 </Button>
             </form>
         </Form>
-    );
-};
+    )
+}
 
-export default LoginForm;
+export default registerForm
