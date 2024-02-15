@@ -1,5 +1,5 @@
-import CardWrapper from "@/components/auth/cardWrapper";
-import LoginForm from "@/components/auth/loginForm";
+import CardWrapper from "@/components/auth/CardWrapper";
+import LoginForm from "@/components/auth/LoginForm";
 import React from "react";
 
 const LoginPage = () => {

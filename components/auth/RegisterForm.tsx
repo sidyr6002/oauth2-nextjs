@@ -1,7 +1,7 @@
 "use client";
 import { registerSchema } from '@/schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { useRef, useState, useTransition } from 'react'
+import React, { useState, useTransition } from 'react'
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -16,12 +16,11 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import Link from 'next/link';
 import axios from 'axios';
 import FormError from '../formError';
 import FormSuccess from '../formSuccess';
 
-const registerForm = () => {
+const RegisterForm = () => {
     const [error, setError] = useState<string | undefined>("");
     const [success, setSuccess] = useState<string | undefined>("");
     const [isPending, startTransition] = useTransition();
@@ -157,4 +156,4 @@ const registerForm = () => {
     )
 }
 
-export default registerForm
+export default RegisterForm

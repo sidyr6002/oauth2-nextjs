@@ -4,6 +4,8 @@ import { loginSchema } from "@/schemas";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AuthError } from "next-auth";
+import { signIn } from "@/auth";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +22,7 @@ import FormError from "../formError";
 import FormSuccess from "../formSuccess";
 import axios from "axios";
 import Link from "next/link";
+import { login } from "@/app/actions/login";
 
 const LoginForm = () => {
     const [success, setSuccess] = useState<string | undefined>("");
@@ -36,19 +39,18 @@ const LoginForm = () => {
 
     const onSubmit = (values: z.infer<typeof loginSchema>) => {
         startTransition(async () => {
-            try {
-                const response = await axios.post("/api/login", values, {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                });
-                console.log(response.data);
-                setSuccess(response.data.message);
-                timeOut();
-            } catch (error: any) {
-                setError(error.response.data.message);
-                timeOut();
-            }
+            login(values).then((data) => {
+                if (data.error) {
+                    setError(data.error);
+                    timeOut();
+                } else {
+                    setSuccess(data.success);
+                    timeOut();
+                }
+            }).catch((error) => {
+                console.error(error);
+                setError("Something went wrong");
+            })
         });
     };
 

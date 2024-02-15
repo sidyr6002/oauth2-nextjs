@@ -1,5 +1,5 @@
-import CardWrapper from "@/components/auth/cardWrapper";
-import RegisterForm from "@/components/auth/registerForm";
+import CardWrapper from "@/components/auth/CardWrapper";
+import RegisterForm from "@/components/auth/RegisterForm";
 import React from "react";
 
 const RegisterPage = () => {

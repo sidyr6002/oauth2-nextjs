@@ -1,5 +1,12 @@
+"use server";
 import { loginSchema } from "@/schemas";
 import { z } from "zod";
+import { signIn } from "@/auth";
+import { DEFAULT_REDIRECT } from "@/routes";
+import { AuthError } from "next-auth";
+import { getUserbyEmail } from "@/data/user";
+import prisma from "@/lib/db";
+import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
     try {
@@ -11,11 +18,27 @@ export async function POST(request: Request) {
         }
 
         console.log("Login POST request: ", body);
-        return Response.json({
-            message: "The credentials are valid!",
-        });
+        const user = await prisma.user.findUnique({
+            where: {
+                email: body.data.email
+            }
+        })
+
+        if (!user) {
+            const error = new Error("User not found");
+            return Response.json({ message: error.message }, { status: 400 });
+        }
+
+        const isMatch = user.password ? await bcrypt.compare(body.data.password, user.password) : true;
+
+        if (!isMatch) {
+            const error = new Error("Invalid credentials");
+            return Response.json({ message: error.message }, { status: 400 });
+        }
+
+        return Response.json(user);
     } catch (error: any) {
-        console.log(error);
-        return Response.json({ message: error.message || "Something went wrong" },{ status: 500 });
+        console.log("Login POST error: ", error);
+        return Response.json({ message: error.message },{ status: 500 });
     }
 }

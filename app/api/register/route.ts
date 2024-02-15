@@ -1,6 +1,6 @@
 import { registerSchema } from "@/schemas";
 import { z } from "zod";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import prisma from "@/lib/db";
 
 export async function POST(request: Request) {
@@ -18,7 +18,8 @@ export async function POST(request: Request) {
             password
         } = body.data
 
-        const hashPassword = await bcrypt.hash(password, 10);
+        const salt = await bcrypt.genSalt(10);
+        const hashPassword = await bcrypt.hash(password, salt);
         const existingUser = await prisma.user.findUnique({
             where: {
                 email
