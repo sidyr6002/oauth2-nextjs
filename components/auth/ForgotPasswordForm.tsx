@@ -1,96 +1,65 @@
 "use client";
-import { registerSchema } from '@/schemas';
-import { zodResolver } from '@hookform/resolvers/zod';
-import React, { useState, useTransition } from 'react'
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import React, { useState, useTransition } from "react";
+import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import axios from 'axios';
-import FormError from '../formError';
-import FormSuccess from '../formSuccess';
+import { resetPasswordSchema } from "@/schemas";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import axios from "axios";
+import FormError from "../formError";
+import FormSuccess from "../formSuccess";
+import { useSearchParams } from "next/navigation";
 
-const RegisterForm = () => {
-    const [error, setError] = useState<string | undefined>("");
+
+const ForgotPasswordForm = () => {
+    const token = useSearchParams().get("token");
+    const [pending, startTransition] = useTransition();
     const [success, setSuccess] = useState<string | undefined>("");
-    const [isPending, startTransition] = useTransition();
-    
+    const [error, setError] = useState<string | undefined>("");
 
-    const form = useForm<z.infer<typeof registerSchema>>({
-        resolver: zodResolver(registerSchema),
+    const form = useForm<z.infer<typeof resetPasswordSchema>>({
+        resolver: zodResolver(resetPasswordSchema),
         defaultValues: {
-            name: "",
             email: "",
             password: "",
             confirmPassword: "",
         },
     });
 
-    const onSubmit = (values: z.infer<typeof registerSchema>) => {
+    const onSubmit = (values: z.infer<typeof resetPasswordSchema>) => {
+        console.log("Input: ", values);
         startTransition(async () => {
             try {
-                const registerResponse = await axios.post("/api/register", values, {
+                const resetResponse = await axios.put("/api/user", values, {
+                    params: {
+                        email: values.email
+                    },
                     headers: {
                         "Content-Type": "application/json",
                     },
                 })
-                const tokenData = await registerResponse.data.token;
-                const emailVerificationResponse = await axios.post("/api/register/verification?email=" + values.email, { token: tokenData.token}, {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                })
-                const response = await emailVerificationResponse.data;
-
-                console.log(response.emailData);
+                const response = await resetResponse.data;
+                console.log(response);
                 setSuccess(response.message);
-                timeOut();
             } catch (error: any) {
                 console.error(error);
                 setError(error.response.data.message);
-                timeOut();
             }  
         })
     }
 
-    const timeOut = () => {
-        setTimeout(() => {
-            setSuccess(undefined);
-            setError(undefined);
-        }, 2500);
-    }
-
-    return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className="sr-only">Name</FormLabel>
-                            <FormControl>
-                                <Input
-                                    placeholder="Enter your name"
-                                    {...field}
-                                    className="w-full py-5 text-base sm:text-lg placeholder:text-base shadow-inner shadow-gray-400/40"
-                                    disabled={isPending}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+    return <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <FormField
                     control={form.control}
                     name="email"
@@ -102,7 +71,6 @@ const RegisterForm = () => {
                                     placeholder="Enter your email"
                                     {...field}
                                     className="w-full py-5 text-base sm:text-lg placeholder:text-base shadow-inner shadow-gray-400/40"
-                                    disabled={isPending}
                                 />
                             </FormControl>
                             <FormMessage />
@@ -119,10 +87,9 @@ const RegisterForm = () => {
                                 <Input
                                     placeholder="Enter your password"
                                     type="password"
-                                    autoComplete="password"
+                                    autoComplete="new-password"
                                     {...field}
                                     className="w-full py-5 text-base sm:text-lg placeholder:text-base shadow-inner shadow-gray-400/40"
-                                    disabled={isPending}
                                 />
                             </FormControl>
                             <FormMessage />
@@ -134,34 +101,31 @@ const RegisterForm = () => {
                     name="confirmPassword"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel className="sr-only">Confirm Password</FormLabel>
+                            <FormLabel className="sr-only">Confirm-Password</FormLabel>
                             <FormControl>
                                 <Input
                                     placeholder="Re-enter your password"
                                     type="password"
-                                    autoComplete="confirmPassword"
+                                    autoComplete="new-password"
                                     {...field}
                                     className="w-full py-5 text-base sm:text-lg placeholder:text-base shadow-inner shadow-gray-400/40"
-                                    disabled={isPending}
                                 />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
-                {error && <FormError message={error}/>}
                 {success && <FormSuccess message={success}/>}
+                {error && <FormError message={error}/>}
 
                 <Button
                     type="submit"
                     className="w-full text-base py-5 shadow-md shadow-blue-500/30"
-                    disabled={isPending}
                 >
-                    Sign Up
+                    Reset Password
                 </Button>
-            </form>
-        </Form>
-    )
-}
+        </form>
+    </Form>;
+};
 
-export default RegisterForm
+export default ForgotPasswordForm;

@@ -2,6 +2,7 @@ import { registerSchema } from "@/schemas";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/db";
+import { generateVerificationToken } from "@/data/token";
 
 export async function POST(request: Request) {
     try {
@@ -38,9 +39,13 @@ export async function POST(request: Request) {
                 password: hashPassword
             }
         })
+
+        // Send verification email
+        const verificationToken = await generateVerificationToken(email);
+        console.log("Verification token: ", verificationToken);
         
         return Response.json({
-            message: "Registered successfully!",
+            token: verificationToken
         })
     } catch (error: any) {
         console.log(error);

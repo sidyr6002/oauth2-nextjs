@@ -1,11 +1,9 @@
 "use client";
-import React, {useTransition, useRef, useState} from "react";
+import React, { useState, useTransition } from "react";
 import { loginSchema } from "@/schemas";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AuthError } from "next-auth";
-import { signIn } from "@/auth";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,13 +17,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import FormError from "../formError";
-import FormSuccess from "../formSuccess";
-import axios from "axios";
 import Link from "next/link";
 import { login } from "@/app/actions/login";
+import { AuthError } from "next-auth";
+import { redirect, useSearchParams } from "next/navigation";
 
 const LoginForm = () => {
-    const [success, setSuccess] = useState<string | undefined>("");
+    const authError = useSearchParams().get("error") === 'OAuthAccountNotLinked' ? 'Email is already linked!' : undefined;
     const [error, setError] = useState<string | undefined>("");
     const [isPending, startTransition] = useTransition();
 
@@ -39,27 +37,25 @@ const LoginForm = () => {
 
     const onSubmit = (values: z.infer<typeof loginSchema>) => {
         startTransition(async () => {
-            login(values).then((data) => {
-                if (data.error) {
-                    setError(data.error);
-                    timeOut();
-                } else {
-                    setSuccess(data.success);
-                    timeOut();
-                }
-            }).catch((error) => {
-                console.error(error);
-                setError("Something went wrong");
-            })
+            login(values)
+                .then((data) => {
+                    if (data?.error) {
+                        setError(data.error);
+                        timeOut();
+                    }
+                })
+                .catch((error: any) => {
+                    console.error("Login Action Error: ", error);
+                    setError("Something went wrong");
+                });
         });
     };
 
     const timeOut = () => {
         setTimeout(() => {
-            setSuccess(undefined);
             setError(undefined);
         }, 2500);
-    }
+    };
 
     return (
         <Form {...form}>
@@ -99,16 +95,20 @@ const LoginForm = () => {
                                 />
                             </FormControl>
                             <FormDescription>
-                                <Button variant="link" size="sm" className="p-0 text-sm">
-                                    <Link href="#">Forgot your password?</Link>
+                                <Button
+                                    variant="link"
+                                    size="sm"
+                                    className="p-0 text-sm"
+                                >
+                                    <Link href="/auth/forgotPassword">Forgot your password?</Link>
                                 </Button>
                             </FormDescription>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
-                {error && <FormError message={error}/>}
-                {success && <FormSuccess message={success}/>}
+                {error && <FormError message={ error} />}
+                {authError && <FormError message={ authError} />}
 
                 <Button
                     type="submit"
