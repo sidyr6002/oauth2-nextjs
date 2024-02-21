@@ -23,13 +23,13 @@ export default {
                     },
                     body: JSON.stringify(credentials),
                 });
-
                 
                 if (!authResponse.ok) {
                     return null;
                 }
                 
                 const user: User = await authResponse.json();
+                //console.log("authResponse: ", user);
                 return user;
             },
         }),

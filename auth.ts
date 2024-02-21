@@ -3,6 +3,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter"
 import prisma from "./lib/db";
 import authConfig from "./auth.config";
 import { User } from "@prisma/client";
+import axios from "axios";
 
 export const {
     handlers: { GET, POST },
@@ -27,22 +28,42 @@ export const {
     },
     callbacks: {
         // Todo: implement this
-        // async signIn({ user }) {
-        //     console.log("Sign in: ", user);
-        //     const {
-        //         id,
-        //         name,
-        //         email,
-        //         emailVerified,
-        //         role,
-        //     } = user;
+        async signIn({ user, account }) {
+            //console.log("Sign in: ", user);
+            //console.log("Account: ", account);
+            if (account?.provider !== "credentials") return true;
 
-        //     if (!emailVerified) return false;
+            const {
+                id,
+                name,
+                email,
+                emailVerified,
+                twoFactorEnabled,
+                role,
+            } = user;
 
-        //     return true;
-        // },
+            // console.log("User: ", id, name, email, emailVerified, twoFactorEnabled, role);
+
+            if (!emailVerified) return false;
+            if (twoFactorEnabled) {
+                try{
+                    const twoFactorConfirmationRes = await axios.get(`${process.env.BASE_URL}/api/twoFactor/confirmation?userId=${id}`);
+                    console.log("twoFactorConfirmationRes: ", twoFactorConfirmationRes.data);
+                    const userId = twoFactorConfirmationRes.data.userId;
+                    if (userId != id) {
+                        return false;
+                    }
+                    await axios.delete(`${process.env.BASE_URL}/api/twoFactor/confirmation?userId=${id}`);
+                } catch (error: any) {
+                    console.error("twoFactorConfirmationError: ", error.response?.data?.message);
+                    return false;
+                }                
+            }
+
+            return true;
+        },
         async session({ session, token }) {
-            // console.log("Session: ", token, session);
+            //console.log("Session Inside: ", token, session);
 
             if (token.email && token.sub && session.user) {
                 session.user.id = token.sub;

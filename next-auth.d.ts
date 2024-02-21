@@ -16,6 +16,7 @@ declare module "next-auth" {
   interface User {
     role?: 'ADMIN' | 'USER'
     emailVerified?: Date | null 
+    twoFactorEnabled?: boolean
   }
 
 }

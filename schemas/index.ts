@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { optional, z } from "zod";
 
 const passwordValidation = new RegExp(
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>]).{6,}$/
@@ -18,6 +18,7 @@ export const loginSchema = z.object({
             passwordValidation,
             "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
         ),
+    code: z.optional(z.string().regex(/^[0-9]{6}$/, "Invalid code")),
 });
 
 export const registerSchema = z
