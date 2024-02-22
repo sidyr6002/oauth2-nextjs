@@ -10,6 +10,7 @@ declare module "next-auth" {
     user: {
       /** The user's postal address. */
       role?: 'ADMIN' | 'USER'
+      isTwoFactorEnabled?: boolean;
     } & DefaultSession["user"]
   }
 
@@ -26,5 +27,6 @@ declare module "next-auth/jwt" {
     interface JWT {
       /** OpenID ID Token */
       role?: 'ADMIN' | 'USER'
+      isTwoFactorEnabled?: boolean
     }
   }

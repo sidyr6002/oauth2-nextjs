@@ -29,7 +29,7 @@ export const {
     callbacks: {
         // Todo: implement this
         async signIn({ user, account }) {
-            //console.log("Sign in: ", user);
+            console.log("Sign in: ", user);
             //console.log("Account: ", account);
             if (account?.provider !== "credentials") return true;
 
@@ -47,13 +47,13 @@ export const {
             if (!emailVerified) return false;
             if (twoFactorEnabled) {
                 try{
-                    const twoFactorConfirmationRes = await axios.get(`${process.env.BASE_URL}/api/twoFactor/confirmation?userId=${id}`);
+                    const twoFactorConfirmationRes = await axios.get(`${process.env.REACT_APP_URL}/api/twoFactor/confirmation?userId=${id}`);
                     console.log("twoFactorConfirmationRes: ", twoFactorConfirmationRes.data);
                     const userId = twoFactorConfirmationRes.data.userId;
                     if (userId != id) {
                         return false;
                     }
-                    await axios.delete(`${process.env.BASE_URL}/api/twoFactor/confirmation?userId=${id}`);
+                    await axios.delete(`${process.env.REACT_APP_URL}/api/twoFactor/confirmation?userId=${id}`);
                 } catch (error: any) {
                     console.error("twoFactorConfirmationError: ", error.response?.data?.message);
                     return false;
@@ -63,28 +63,34 @@ export const {
             return true;
         },
         async session({ session, token }) {
-            //console.log("Session Inside: ", token, session);
-
-            if (token.email && token.sub && session.user) {
+            if (token.sub && session.user) {
                 session.user.id = token.sub;
-                session.user.email = token.email;
             }
 
             if (token.role && session.user) {
                 session.user.role = token.role;
             }
+
+            if (session.user) {
+                session.user.isTwoFactorEnabled = token.isTwoFactorEnabled;
+            }
+
+            console.log("Session Inside: ", session);
             return session;
         },
         async jwt({ token }) {
             if (!token.sub) return token;
 
             const response = await fetch(
-                "http://localhost:3000/api/user?email=" + token.email,
+                `${process.env.REACT_APP_URL}/api/user?email=` + token.email,
                 { method: "GET" }
             );
             const user: User = await response.json();
             if (!user) return token;
+
             token.role = user.role;
+            token.isTwoFactorEnabled = user.twoFactorEnabled;
+
             return token;
         },
     },

@@ -76,3 +76,10 @@ export const resetPasswordSchema = z
         message: "Passwords do not match",
         path: ["confirmPassword"],
     });
+
+export const settingsSchema = z
+    .object({
+        name: z.optional(z.string().min(4, "Must have at least 4 characters").max(255, "Maximum 255 characters are allowed")),
+        role: z.optional(z.enum(["ADMIN", "USER"])),
+        isTwoFactorEnabled: z.optional(z.boolean()),
+    })

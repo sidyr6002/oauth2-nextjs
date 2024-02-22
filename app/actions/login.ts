@@ -41,7 +41,7 @@ export const login = async (values: z.infer<typeof loginSchema>) => {
     if (existingUser.emailVerified === null) {
         // TODO: send email
         try {
-            const tokenFetch = await fetch(`${process.env.BASE_URL}/api/generateToken?email=${existingUser.email}`,{
+            const tokenFetch = await fetch(`${process.env.REACT_APP_URL}/api/generateToken?email=${existingUser.email}`,{
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -49,7 +49,7 @@ export const login = async (values: z.infer<typeof loginSchema>) => {
                 }
             );
             const tokenData: VerificationToken = await tokenFetch.json();
-            await fetch(`${process.env.BASE_URL}/api/register/verification?email=`+existingUser.email, {
+            await fetch(`${process.env.REACT_APP_URL}/api/register/verification?email=`+existingUser.email, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -74,7 +74,7 @@ export const login = async (values: z.infer<typeof loginSchema>) => {
     if (existingUser.twoFactorEnabled) {
         try {
             const twoFactorTokenRes = await axios.post(
-                `${process.env.BASE_URL}/api/twoFactor/token?email=${existingUser.email}&userId=${existingUser.id}`
+                `${process.env.REACT_APP_URL}/api/twoFactor/token?email=${existingUser.email}&userId=${existingUser.id}`
             );
 
             const twoFactorToken = await twoFactorTokenRes.data.token;
@@ -83,7 +83,7 @@ export const login = async (values: z.infer<typeof loginSchema>) => {
 
             if (sendEmail) {
                 await axios.post(
-                    `${process.env.BASE_URL}/api/twoFactor/email?email=${existingUser.email}`,
+                    `${process.env.REACT_APP_URL}/api/twoFactor/email?email=${existingUser.email}`,
                     {
                         token: twoFactorToken.token,
                     }
@@ -95,10 +95,10 @@ export const login = async (values: z.infer<typeof loginSchema>) => {
                 return { error: "Two Factor Authentication Failed!" };
             }
 
-            await axios.delete(`${process.env.BASE_URL}/api/twoFactor/token?email=${existingUser.email}`);
+            await axios.delete(`${process.env.REACT_APP_URL}/api/twoFactor/token?email=${existingUser.email}`);
 
             const twoFactorConfirmation = await axios.post(
-                `${process.env.BASE_URL}/api/twoFactor/confirmation?userId=${existingUser.id}`
+                `${process.env.REACT_APP_URL}/api/twoFactor/confirmation?userId=${existingUser.id}`
             );
             //console.log("Two Factor Confirmation Response: ", twoFactorConfirmation.data);
         } catch (error) {

@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
             return Response.json({ error: "User not found" }, { status: 400 });
         }
 
-        const redirectURL = `${process.env.BASE_URL}/auth/new-verification?token=` + token;
+        const redirectURL = `${process.env.REACT_APP_URL}/auth/new-verification?token=` + token;
         const emailData = await resend.emails.send({
             from: "Acme <onboarding@resend.dev>",
             to: [user.email],

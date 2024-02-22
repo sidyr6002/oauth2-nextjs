@@ -3,7 +3,7 @@
 import { User, VerificationToken } from "@prisma/client";
 
 export const newVerification = async (token: string) => {
-    const getTokenRes = await fetch(`${process.env.BASE_URL}/api/token?token=` + token, {
+    const getTokenRes = await fetch(`${process.env.REACT_APP_URL}/api/token?token=` + token, {
         method: "GET"
     });
 
@@ -26,7 +26,7 @@ export const newVerification = async (token: string) => {
         }
     }
 
-    const userFetch = await fetch(`${process.env.BASE_URL}/api/user?email=` + tokenData.email, {
+    const userFetch = await fetch(`${process.env.REACT_APP_URL}/api/user?email=` + tokenData.email, {
         method: "GET"
     });
     
@@ -39,7 +39,7 @@ export const newVerification = async (token: string) => {
     const userData: User = await userFetch.json();
     
     try {        
-        await fetch(`${process.env.BASE_URL}/api/user?email=` + userData.email, {
+        await fetch(`${process.env.REACT_APP_URL}/api/user?email=` + userData.email, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -47,7 +47,7 @@ export const newVerification = async (token: string) => {
             body: JSON.stringify({emailVerified: new Date(), email: tokenData.email}),
         })
 
-        await fetch(`${process.env.BASE_URL}/api/token?token=` + token, {
+        await fetch(`${process.env.REACT_APP_URL}/api/token?token=` + token, {
             method: "DELETE"
         })
     } catch (error) {
